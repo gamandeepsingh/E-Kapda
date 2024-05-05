@@ -1,66 +1,50 @@
 import { useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import myContext from "../../context/data/MyContext";
 import { toast } from "react-toastify";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {  signInWithEmailAndPassword } from "firebase/auth";
 import { auth, fireDB } from "../../firebase/FirebaseConfig";
-import { addDoc, collection, Timestamp } from "firebase/firestore";
+import { addDoc, collection} from "firebase/firestore";
+import Loader from "../../components/loadingBar/Loader";
 
 function Login() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const context = useContext(myContext);
   const { loading, setLoading } = context;
 
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-    // console.log(formData);
-  }
 
   async function submithandle(e) {
     try {
-      e.preventDefault();
       setLoading(true);
-      if (
-        formData.email === "" ||
-        formData.password === "" ||
-        formData.name === ""
-      ) {
-        toast.error("Please fill all the fields");
-        setLoading(false);
-        return;
-      }
-        const response = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-        const user ={
-            name: formData.name,
-            uid: response.user.uid,
-            email: response.user.email,
-            time: Timestamp.now(),
-        }
-        const userRef = collection(fireDB, "users");
-        await addDoc(userRef, user);
-        setFormData({
-            name: "",
-            email: "",
-            password: "",
-        });
-        toast.success("SignUp successfully");
+      e.preventDefault();
+
+      const user = await signInWithEmailAndPassword(auth, email, password);
+      toast.success('Login Successfully');
+      localStorage.setItem('user', JSON.stringify(user.user));
+
+      navigate('/');
+      setLoading(false);
     } catch (error) {
-      toast.error("error occured while login");
-      throw error;
+      toast.error('Sigin Failed', {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+      setLoading(false);
     }
   }
 
   return (
     <div className=" flex justify-center items-center h-screen">
+    {loading && <Loader/>}
       <div className=" bg-gray-800 px-10 py-10 rounded-xl ">
         <div className="">
           <h1 className="text-center text-pink-600 text-xl mb-4 font-bold">
@@ -70,22 +54,12 @@ function Login() {
         <form action="">
           <div>
             <input
-              type="text"
-              name="name"
-              className=" bg-gray-600 mb-4 px-2 py-2 w-full lg:w-[20em] rounded-lg text-white placeholder:text-gray-200 outline-none"
-              placeholder="Name"
-              value={formData.name}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <input
               type="email"
               name="email"
               className=" bg-gray-600 mb-4 px-2 py-2 w-full lg:w-[20em] rounded-lg text-white placeholder:text-gray-200 outline-none"
               placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
+              value={email}
+              onChange={(e)=>setEmail(e.target.value)}
             />
           </div>
           <div>
@@ -94,8 +68,8 @@ function Login() {
               className=" bg-gray-600 mb-4 px-2 py-2 w-full lg:w-[20em] rounded-lg text-white placeholder:text-gray-200 outline-none"
               placeholder="Password"
               name="password"
-              value={formData.password}
-              onChange={handleChange}
+              value={password}
+              onChange={(e)=>setPassword(e.target.value)}
             />
           </div>
           <div className=" flex justify-center mb-3">

@@ -3,6 +3,7 @@ import {
   BrowserRouter as Router,
   Route,
   Routes,
+  Navigate,
 } from "react-router-dom";
 import Home from './pages/home/Home';
 import Order from './pages/order/Order';
@@ -17,20 +18,36 @@ import AddProduct from './pages/admin/pages/AddProduct';
 import UpdateProduct from './pages/admin/pages/UpdateProduct';
 
 function App() {
-
+  
   return (
     <MyState>
     <Router>
       <Routes>
         <Route path="/" element={<Home/>} />
-        <Route path="/order" element={<Order/>} />
+        <Route path="/order" element={
+          <ProtectedRoute>
+            <Order/>
+          </ProtectedRoute>
+        } />
         <Route path="/cart" element={<Cart/>} />
-        <Route path="/dashboard" element={<Dashboard/>} />
+        <Route path="/dashboard" element={
+          <AdminProtectedRoute>
+            <Dashboard/>
+          </AdminProtectedRoute>
+        } />
         <Route path="/login" element={<Login/>} />
         <Route path="/signup" element={<Signup/>} />
         <Route path="/productinfo/:id" element={<ProductInfo/>} />
-        <Route path="/addproduct" element={<AddProduct/>} />
-        <Route path="/updateproduct" element={<UpdateProduct/>} />
+        <Route path="/addproduct" element={
+          <AdminProtectedRoute>
+            <AddProduct/>
+          </AdminProtectedRoute>
+        } />
+        <Route path="/updateproduct" element={
+          <AdminProtectedRoute>
+            <UpdateProduct/>
+          </AdminProtectedRoute>
+        } />
         <Route path="/*" element={<NoPage/>} />
       </Routes>
     </Router>
@@ -39,3 +56,27 @@ function App() {
 }
 
 export default App
+
+//user protected route
+
+export const ProtectedRoute = ({children}) =>{
+  const user = localStorage.getItem('user');
+  if(user){
+    return children;
+  }
+  else{
+    return <Navigate to="/login"/>
+  }
+}
+
+// admin protected route
+
+export const AdminProtectedRoute = ({children}) =>{
+  const admin = JSON.parse(localStorage.getItem('user'));
+  if(admin?.email === "jhadu4@gmail.com"){
+    return children;
+  }
+  else{
+    return <Navigate to="/login"/>
+  }
+}
