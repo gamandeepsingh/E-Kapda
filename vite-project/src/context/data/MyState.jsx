@@ -97,14 +97,13 @@ function MyState(props) {
     }
   };
 
-  
   // ****** edit product
   const editHandle = async (item) => {
-    setProducts(item)
+    setProducts(item);
   };
 
-  const updateProduct =async ()=>{
-    setLoading(true)
+  const updateProduct = async () => {
+    setLoading(true);
     try {
       await setDoc(doc(fireDB, "products", products.id), products);
       toast.success("Product Updated");
@@ -117,7 +116,7 @@ function MyState(props) {
       console.log(error);
       setLoading(false);
     }
-  }
+  };
 
   // ****** del product
   const delProduct = async (item) => {
@@ -134,43 +133,47 @@ function MyState(props) {
   };
   const [order, setOrder] = useState([]);
   const getOrderData = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const result = await getDocs(collection(fireDB, "orders"))
+      const result = await getDocs(collection(fireDB, "orders"));
       const ordersArray = [];
       result.forEach((doc) => {
         ordersArray.push(doc.data());
-        setLoading(false)
+        setLoading(false);
       });
       setOrder(ordersArray);
       // console.log(ordersArray)
       setLoading(false);
     } catch (error) {
-      console.log(error)
-      setLoading(false)
+      console.log(error);
+      setLoading(false);
     }
-  }
+  };
 
   const [user, setUser] = useState([]);
 
   const getUserData = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const result = await getDocs(collection(fireDB, "users"))
+      const result = await getDocs(collection(fireDB, "users"));
       const usersArray = [];
       result.forEach((doc) => {
         usersArray.push(doc.data());
-        setLoading(false)
+        setLoading(false);
       });
       setUser(usersArray);
-      console.log(usersArray)
+      // console.log(usersArray);
       setLoading(false);
     } catch (error) {
-      console.log(error)
-      setLoading(false)
+      console.log(error);
+      setLoading(false);
     }
-  }
-  
+  };
+
+  const [searchkey, setSearchkey] = useState("");
+  const [filterType, setFilterType] = useState("");
+  const [filterPrice, setFilterPrice] = useState("");
+
   useEffect(() => {
     getProductData();
     getOrderData();
@@ -191,7 +194,13 @@ function MyState(props) {
         updateProduct,
         delProduct,
         order,
-        user
+        user,
+        searchkey,
+        setSearchkey,
+        filterType,
+        setFilterType,
+        filterPrice,
+        setFilterPrice,
       }}
     >
       {props.children}
