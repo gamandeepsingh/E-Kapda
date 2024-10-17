@@ -83,7 +83,7 @@ function Cart() {
       amount: parseInt(grandTotal * 100),
       currency: "INR",
       order_receipt: 'order_rcptid_' + name,
-      name: "E-Bharat",
+      name: "E-Kapda",
       description: "for testing purpose",
       handler: async function (response) {
         // console.log(response)
